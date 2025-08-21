@@ -19,13 +19,13 @@ public class BookDTO {
     public static class BookCreateRequest {
         @NotBlank(message = "제목은 필수 입력 항목입니다.")
         private String title;
-        
+
         @NotBlank(message = "저자는 필수 입력 항목입니다.")
         private String author;
-        
+
         @NotBlank(message = "ISBN은 필수 입력 항목입니다.")
         private String isbn;
-        
+
         @Positive(message = "가격은 양수여야 합니다.")
         private Integer price;
 
@@ -43,7 +43,7 @@ public class BookDTO {
             return book;
         }
     }
-    
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -51,7 +51,7 @@ public class BookDTO {
     public static class BookUpdateRequest {
         @Positive(message = "가격은 양수여야 합니다.")
         private Integer price;
-        
+
         // 확장 가능성을 위해 추가 필드들을 옵셔널하게 포함할 수 있음
         @NotBlank(message = "제목은 필수 입력 항목입니다.")
         private String title;
@@ -61,10 +61,8 @@ public class BookDTO {
 
         //@NotBlank(message = "출판일자는 필수 입력 항목입니다.")
         private LocalDate publishDate;
-
-
     }
-    
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -77,18 +75,15 @@ public class BookDTO {
         private Integer price;
         private LocalDate publishDate;
 
-        public BookResponse(Book entity) {
-        }
-
         //Book => BookResponse
         public static BookResponse from(Book book) {
             return new BookResponse(
-                book.getId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getIsbn(),
-                book.getPrice(),
-                book.getPublishDate()
+                    book.getId(),
+                    book.getTitle(),
+                    book.getAuthor(),
+                    book.getIsbn(),
+                    book.getPrice(),
+                    book.getPublishDate()
             );
         }
     }
