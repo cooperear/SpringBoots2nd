@@ -1,5 +1,6 @@
 package com.rookies4.myspringbootlab.exception;
 
+import com.rookies4.myspringbootlab.exception.advice.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 @Getter
@@ -8,7 +9,7 @@ public class BusinessException extends RuntimeException {
     private String message;
     private HttpStatus httpStatus;
 
-    public BusinessException(String message) {
+    public BusinessException(ErrorCode s, String message) {
         //417
         this(message, HttpStatus.EXPECTATION_FAILED);
     }

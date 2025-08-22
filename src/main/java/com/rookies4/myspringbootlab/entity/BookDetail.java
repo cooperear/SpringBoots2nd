@@ -11,13 +11,13 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class BookDetail {
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "id", unique = true)
-    private Book book;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", referencedColumnName = "id", unique = true)
+    private Book book;
 
 
     @Column(nullable = false)

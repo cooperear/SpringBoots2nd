@@ -41,26 +41,6 @@ public class BookController {
         return ResponseEntity.ok(BookDTO.Response.fromEntity(book));
     }
 
-    // 도서 등록
-    @PostMapping
-    public ResponseEntity<BookDTO.Response> createBook(@Valid @RequestBody BookDTO.Request request) {
-        return new ResponseEntity<>(bookService.createBook(request), HttpStatus.CREATED);
-    }
-
-    // 도서 정보 수정 (PUT & PATCH)
-    @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
-    public ResponseEntity<BookDTO.Response> updateBook(@PathVariable Long id, @RequestBody BookDTO.Request request, HttpServletRequest httpRequest) {
-        BookDTO.Response updatedBook = bookService.updateOrPatchBook(id, request, httpRequest.getMethod());
-        return ResponseEntity.ok(updatedBook);
-    }
-
-    // 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
-    }
-
     // ISBN으로 도서 조회
     @GetMapping("/isbn/{isbn}")
     public ResponseEntity<BookDTO.Response> getBookByIsbn(@PathVariable String isbn) {
@@ -70,8 +50,8 @@ public class BookController {
     }
 
     // 저자명으로 도서 조회
-    @GetMapping("/author/{author}")
-    public ResponseEntity<List<BookDTO.Response>> getBooksByAuthor(@PathVariable String author) {
+    @GetMapping("/search/author")
+    public ResponseEntity<List<BookDTO.Response>> getBooksByAuthor(@RequestParam String author) {
         List<Book> books = bookRepository.findByAuthorContainingIgnoreCase(author);
         List<BookDTO.Response> responses = books.stream()
                 .map(BookDTO.Response::fromEntity)
@@ -80,8 +60,8 @@ public class BookController {
     }
 
     // 제목으로 도서 조회
-    @GetMapping("/title/{title}")
-    public ResponseEntity<List<BookDTO.Response>> getBooksByTitle(@PathVariable String title) {
+    @GetMapping("/search/title")
+    public ResponseEntity<List<BookDTO.Response>> getBooksByTitle(@RequestParam String title) {
         List<Book> books = bookRepository.findByTitleContainingIgnoreCase(title);
         List<BookDTO.Response> responses = books.stream()
                 .map(BookDTO.Response::fromEntity)
@@ -94,6 +74,39 @@ public class BookController {
     public boolean existsByIsbn(@PathVariable String isbn){
         return bookRepository.existsByIsbn(isbn);
     }
+
+
+
+    // 도서 등록
+    @PostMapping
+    public ResponseEntity<BookDTO.Response> createBook(@Valid @RequestBody BookDTO.Request request) {
+        return new ResponseEntity<>(bookService.createBook(request), HttpStatus.CREATED);
+    }
+
+    // 도서 정보 수정 (PUT)
+    @PutMapping("/{id}")
+    public ResponseEntity<BookDTO.Response> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO.Request request) {
+        BookDTO.Response updatedBook = bookService.updateBook(id, request);
+        return ResponseEntity.ok(updatedBook);
+    }
+
+    // 도서 정보 수정 (PATCH)
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookDTO.Response> patchBook(@PathVariable Long id, @RequestBody BookDTO.Request request) {
+        BookDTO.Response patchedBook = bookService.patchBook(id, request);
+        return ResponseEntity.ok(patchedBook);
+    }
+
+
+
+
+    // 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 }

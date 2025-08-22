@@ -4,6 +4,7 @@ import com.rookies4.myspringbootlab.controller.dto.BookDTO;
 import com.rookies4.myspringbootlab.entity.Book;
 import com.rookies4.myspringbootlab.entity.BookDetail;
 import com.rookies4.myspringbootlab.exception.BusinessException;
+import com.rookies4.myspringbootlab.exception.advice.ErrorCode;
 import com.rookies4.myspringbootlab.repository.BookRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -24,9 +25,6 @@ public class BookService {
     private final Validator validator;
 
     public BookDTO.Response createBook(BookDTO.Request request) {
-        bookRepository.findByIsbn(request.getIsbn()).ifPresent(entity -> {
-            throw new BusinessException("ISBN already exists", HttpStatus.CONFLICT);
-        });
 
         Book book = Book.builder()
                 .title(request.getTitle())
@@ -35,6 +33,12 @@ public class BookService {
                 .price(request.getPrice())
                 .publishDate(request.getPublishDate())
                 .build();
+
+        if (!book.getIsbn().equals(request.getIsbn()) &&
+                bookRepository.existsByIsbn(request.getIsbn())) {
+            throw new BusinessException(ErrorCode.ISBN_DUPLICATE, request.getIsbn());
+        }
+
 
         if (request.getDetailRequest() != null) {
             BookDTO.BookDetailDTO detailDTO = request.getDetailRequest();
@@ -53,15 +57,7 @@ public class BookService {
         return BookDTO.Response.fromEntity(savedBook);
     }
 
-    public BookDTO.Response updateOrPatchBook(Long id, BookDTO.Request request, String httpMethod) {
-        if ("PATCH".equalsIgnoreCase(httpMethod)) {
-            return patchBook(id, request);
-        } else { // Default to PUT
-            return updateBook(id, request);
-        }
-    }
-
-    private BookDTO.Response updateBook(Long id, BookDTO.Request request) {
+    public BookDTO.Response updateBook(Long id, BookDTO.Request request) {
         // For PUT, manually validate the request body
         Set<ConstraintViolation<BookDTO.Request>> violations = validator.validate(request);
         if (!violations.isEmpty()) {
@@ -69,7 +65,7 @@ public class BookService {
         }
 
         Book existBook = bookRepository.findByIdWithBookDetail(id)
-                .orElseThrow(() -> new BusinessException("Book not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("책 없음", HttpStatus.NOT_FOUND));
 
         // Full update
         existBook.setTitle(request.getTitle());
@@ -92,13 +88,19 @@ public class BookService {
             bookDetail.setEdition(detailDTO.getEdition());
         }
 
+        if (!existBook.getIsbn().equals(request.getIsbn()) &&
+                bookRepository.existsByIsbn(request.getIsbn())) {
+            throw new BusinessException(ErrorCode.ISBN_DUPLICATE, request.getIsbn());
+        }
+
         Book updatedBook = bookRepository.save(existBook);
         return BookDTO.Response.fromEntity(updatedBook);
     }
 
-    private BookDTO.Response patchBook(Long id, BookDTO.Request request) {
+    public BookDTO.Response patchBook(Long id, BookDTO.Request request) {
         Book existBook = bookRepository.findByIdWithBookDetail(id)
-                .orElseThrow(() -> new BusinessException("Book not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("책 없음", HttpStatus.NOT_FOUND));
+
 
         // Partial update
         if (StringUtils.hasText(request.getTitle())) {
@@ -144,14 +146,51 @@ public class BookService {
             }
         }
 
+        if (!existBook.getIsbn().equals(request.getIsbn()) &&
+                bookRepository.existsByIsbn(request.getIsbn())) {
+            throw new BusinessException(ErrorCode.ISBN_DUPLICATE, request.getIsbn());
+        }
+
         Book patchedBook = bookRepository.save(existBook);
         return BookDTO.Response.fromEntity(patchedBook);
     }
 
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new BusinessException("Book not found", HttpStatus.NOT_FOUND);
+            throw new BusinessException("책없음", HttpStatus.NOT_FOUND);
         }
         bookRepository.deleteById(id);
+    }
+
+    public BookDTO.Response patchBookDetail(Long bookId, BookDTO.BookDetailDTO detailRequest) {
+        Book existBook = bookRepository.findByIdWithBookDetail(bookId)
+                .orElseThrow(() -> new BusinessException("Book not found", HttpStatus.NOT_FOUND));
+
+        BookDetail bookDetail = existBook.getBookDetail();
+        if (bookDetail == null) {
+            throw new BusinessException("BookDetail not found, cannot patch", HttpStatus.NOT_FOUND);
+        }
+
+        if (StringUtils.hasText(detailRequest.getDescription())) {
+            bookDetail.setDescription(detailRequest.getDescription());
+        }
+        if (StringUtils.hasText(detailRequest.getLanguage())) {
+            bookDetail.setLanguage(detailRequest.getLanguage());
+        }
+        if (detailRequest.getPageCount() != null) {
+            bookDetail.setPageCount(detailRequest.getPageCount());
+        }
+        if (StringUtils.hasText(detailRequest.getPublisher())) {
+            bookDetail.setPublisher(detailRequest.getPublisher());
+        }
+        if (StringUtils.hasText(detailRequest.getCoverImageUrl())) {
+            bookDetail.setCoverImageUrl(detailRequest.getCoverImageUrl());
+        }
+        if (StringUtils.hasText(detailRequest.getEdition())) {
+            bookDetail.setEdition(detailRequest.getEdition());
+        }
+
+        Book patchedBook = bookRepository.save(existBook);
+        return BookDTO.Response.fromEntity(patchedBook);
     }
 }
