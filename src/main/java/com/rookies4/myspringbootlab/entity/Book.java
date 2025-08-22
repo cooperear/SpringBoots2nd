@@ -33,7 +33,4 @@ public class Book {
     @Column(nullable = false)
     private LocalDate publishDate;
 
-    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private BookDetail bookDetail;
-
 }
