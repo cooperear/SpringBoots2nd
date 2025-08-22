@@ -11,6 +11,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
+
 public class Book {
     
     @Id
@@ -32,5 +34,18 @@ public class Book {
 
     @Column(nullable = false)
     private LocalDate publishDate;
+
+    // Book은 주인이 아님 (mappedBy)
+    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BookDetail bookDetail;
+
+
+    public void setBookDetail(BookDetail bookDetail) {
+        this.bookDetail = bookDetail;
+        if (bookDetail != null) {
+            bookDetail.setBook(this);
+        }
+    }
+
 
 }
