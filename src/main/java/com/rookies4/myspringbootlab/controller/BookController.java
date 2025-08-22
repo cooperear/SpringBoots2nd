@@ -83,6 +83,7 @@ public class BookController {
         return new ResponseEntity<>(bookService.createBook(request), HttpStatus.CREATED);
     }
 
+
     // 도서 정보 수정 (PUT)
     @PutMapping("/{id}")
     public ResponseEntity<BookDTO.Response> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO.Request request) {
