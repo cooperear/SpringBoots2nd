@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class DefaultExceptionAdvice {
 
     @ExceptionHandler(BusinessException.class)
-    protected ProblemDetail handleException(BusinessException e) {
+    private ProblemDetail handleException(BusinessException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(e.getHttpStatus());
         problemDetail.setTitle("Not Found");
         problemDetail.setDetail(e.getMessage());
@@ -49,7 +49,7 @@ public class DefaultExceptionAdvice {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    protected ResponseEntity<Object> handleException(HttpMessageNotReadableException e) {
+    private ResponseEntity<Object> handleException(HttpMessageNotReadableException e) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("message", e.getMessage());
         result.put("httpStatus", HttpStatus.BAD_REQUEST.value());

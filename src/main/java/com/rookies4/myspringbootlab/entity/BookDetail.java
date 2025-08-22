@@ -5,18 +5,21 @@ import lombok.*;
 
 @Entity
 @Table(name = "book_detail")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class BookDetail {
-    @OneToOne(fetch = FetchType.LAZY , optional = true)
-    @JoinColumn(name = "book_id", unique = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "id", unique = true)
     private Book book;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+
     @Column(nullable = false)
     private String description;
 
@@ -34,8 +37,6 @@ public class BookDetail {
 
     @Column(nullable = false)
     private String edition;
-
-
 
 
 }

@@ -2,6 +2,7 @@ package com.rookies4.myspringbootlab.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 
@@ -17,7 +18,7 @@ public class Book {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "book_id")
+    @Column(name = "id")
     private Long id;
     
     @Column(nullable = false)
@@ -30,12 +31,14 @@ public class Book {
     private String isbn;
 
     @Column(nullable = false)
-    private Integer price;
+    @Builder.Default
+    private Integer price = 0;
 
     @Column(nullable = false)
+    @CreationTimestamp
     private LocalDate publishDate;
 
-    // Book은 주인이 아님 (mappedBy)
+
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private BookDetail bookDetail;
 
